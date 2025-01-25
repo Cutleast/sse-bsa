@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0", "lz4", "virtual_glob"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sse_bsa"
+version = "1.0.0"
+authors = [
+  { name="Cutleast", email="cutleast@gmail.com" },
+]
+description = "A Python library to read and write BSA (archive) files for Skyrim Special Edition."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["lz4", "virtual_glob"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = {file = "LICENSE"}
+
+[tool.setuptools]
+include-package-data = true
+
+[project.urls]
+Homepage = "https://github.com/cutleast/sse-bsa"
+Issues = "https://github.com/cutleast/sse-bsa/issues"
