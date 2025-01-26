@@ -220,7 +220,7 @@ class String:
 
                 return strings
 
-        return text.decode()
+        return text.decode(String.ENCODING)
 
     @staticmethod
     @overload
