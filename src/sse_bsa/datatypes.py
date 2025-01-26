@@ -98,6 +98,9 @@ class String:
     Class for all types of chars and strings.
     """
 
+    ENCODING: str = "cp1252"
+    """The default encoding used in Bethesda's file formats."""
+
     class StrType(Enum):
         Char = auto()
         """8-bit character."""
@@ -213,7 +216,7 @@ class String:
                         string += char
 
                     if string:
-                        strings.append(string.decode())
+                        strings.append(string.decode(String.ENCODING))
 
                 return strings
 
@@ -255,13 +258,13 @@ class String:
                 if not isinstance(value, str):
                     raise TypeError("'value' must be a string!")
 
-                return value.encode()
+                return value.encode(String.ENCODING)
 
             case String.StrType.WString:
                 if not isinstance(value, str):
                     raise TypeError("'value' must be a string!")
 
-                text = value.encode()
+                text = value.encode(String.ENCODING)
                 size = Integer.dump(len(text), Integer.IntType.UInt16)
                 return size + text
 
@@ -269,7 +272,7 @@ class String:
                 if not isinstance(value, str):
                     raise TypeError("'value' must be a string!")
 
-                text = value.encode()
+                text = value.encode(String.ENCODING)
                 size = Integer.dump(len(text), Integer.IntType.UInt8)
                 return size + text
 
@@ -277,7 +280,7 @@ class String:
                 if not isinstance(value, str):
                     raise TypeError("'value' must be a string!")
 
-                text = value.encode() + b"\x00"
+                text = value.encode(String.ENCODING) + b"\x00"
                 size = Integer.dump(len(text), Integer.IntType.UInt8)
                 return size + text
 
@@ -285,7 +288,7 @@ class String:
                 if not isinstance(value, list):
                     raise TypeError("'value' must be a list!")
 
-                data = b"\x00".join(v.encode() for v in value) + b"\x00"
+                data = b"\x00".join(v.encode(String.ENCODING) for v in value) + b"\x00"
 
                 return data
 
