@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Optional
 
 import lz4.frame
-from virtual_glob import InMemoryPath, glob
 
 from .datatypes import Hash, Integer, String
 from .file_name_block import FileNameBlock
@@ -16,7 +15,7 @@ from .file_record import FileRecord
 from .file_record_block import FileRecordBlock
 from .folder_record import FolderRecord
 from .header import Header
-from .utilities import create_folder_list
+from .utilities import create_folder_list, glob
 
 
 class BSAArchive:
@@ -37,7 +36,7 @@ class BSAArchive:
     __folders: list[FolderRecord]
     __file_record_blocks: list[FileRecordBlock]
     __file_name_block: FileNameBlock
-    __files: dict[str, FileRecord]
+    __files: dict[Path, FileRecord]
 
     def __init__(self, archive_path: Path) -> None:
         """
@@ -51,15 +50,15 @@ class BSAArchive:
 
         self.__load()
 
-    def __match_names(self) -> dict[str, FileRecord]:
-        result: dict[str, FileRecord] = {}
+    def __match_names(self) -> dict[Path, FileRecord]:
+        result: dict[Path, FileRecord] = {}
 
         index: int = 0
         for file_record_block in self.__file_record_blocks:
             for file_record in file_record_block.file_records:
                 file_path: str = file_record_block.name
                 file_name: str = self.__file_name_block.file_names[index]
-                file: str = str(Path(file_path) / file_name).replace("\\", "/")
+                file: Path = Path(file_path) / file_name
                 result[file] = file_record
                 index += 1
 
@@ -93,7 +92,7 @@ class BSAArchive:
         self.__process_compression_flags()
 
     @property
-    def files(self) -> list[str]:
+    def files(self) -> list[Path]:
         """
         A list of all files in the archive.
         """
@@ -111,10 +110,7 @@ class BSAArchive:
             list[str]: List of matching filenames
         """
 
-        fs: InMemoryPath = InMemoryPath.from_list(self.files)
-        matches: list[str] = [p.path for p in glob(fs, pattern)]
-
-        return matches
+        return glob(pattern, list(map(str, self.files)))
 
     def extract(self, dest_folder: Path) -> None:
         """
@@ -140,7 +136,7 @@ class BSAArchive:
             Exception: when the extraction fails
         """
 
-        filename = str(filename).replace("\\", "/")
+        filename = Path(filename)
 
         if filename not in self.__files:
             raise FileNotFoundError(f"{filename!r} is not in archive!")
@@ -191,7 +187,7 @@ class BSAArchive:
             BytesIO: The file stream
         """
 
-        filename = str(filename)
+        filename = Path(filename)
 
         if filename not in self.__files:
             raise FileNotFoundError("File is not in archive!")
